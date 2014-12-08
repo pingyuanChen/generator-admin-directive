@@ -1,0 +1,95 @@
+<div class="list-wrap">
+    <div class="list-top">
+        <button class="btn btn-success add-trans-btn" has-feature="create-task" ng-click="createTrans()">Create Translation</button>
+        <button class="btn btn-success float-right" has-feature="build-project" ng-click="exportApk()">Build Project</button>
+        <div class="filter-wrap">
+            <cascade-dropdown selected-model="selectOptions" select-name="selectName" select-cache="selectCache" on-selected="filter(node, isInit)" load-data-from-cache="loadDataFromCache()"></cascade-dropdown>
+        </div>
+    </div>
+    <div class="list-content" cc-loading-layer="!transTableParams.settings().$loading">
+        <!-- admin提示信息 -->
+        <div
+            ng-show="!transTableParams.settings().$loading && items && !items.length"
+            class="no-data">
+            <!-- 对于CPM  admin 提示信息  -->
+            <span ng-if="role ==3 || role == 2">
+                The list is empty, You can Create a Translation
+            </span>
+            <!-- Translator提示信息 -->
+            <span ng-if="role == 6 ">
+                The list is empty, nothing to do！
+            </span>
+        </div>
+        <table ng-table="transTableParams" class="table table-bordered trans-table" template-pagination="app/layouts/pagination.html" >
+            <tr ng-repeat="item in items">
+                <td data-title="'Application Name'">{{item.appname}}</td>
+                <td data-title="'Version'" width="200">{{item.appversion}}</td>
+                <td data-title="'Language'">{{item.display_locale}}</td>
+                <td data-title="'Status'" ng-class="statusClass(item.task_status)" width="200">{{statusCol(item)}}</td>
+                <td data-title="'Actions'" width="180" class="trans-action-col">
+
+                    <a href="" class="btn btn-default" ng-click="viewDetail(item)">View Details</a>
+                    <!-- <a ng-href="{{export(item)}}" class="btn btn-default">Export</a> -->
+                    <!-- cpm确认检查通过    -->
+                    <!-- 完成不能点击  check OK后要加上钩 -->
+                    <button
+                    class="btn btn-default"
+                    has-feature = "country-manager-check"
+                    ng-class="{'is-checked':item.is_checked}"
+                    ng-click="showCheckPassConfirm(item)"
+                    ng-disabled="!canCheck(item)">
+                        {{getCheckText(item)}}
+                        <i></i>
+                    </button>
+
+                    <!-- 翻译人员请求检查 -->
+                    <button
+                    class="btn btn-default"
+                    has-feature="send-mail-xmlinfo"
+                    ng-click="showTranslatorSubmitDialog(item)"
+                    ng-disabled="!canSubmit(item) ">
+                        {{getSubmitText(item)}}
+                    </button>
+
+                    <!-- 分配任务 -->
+                    <button
+                    class="btn btn-default"
+                    has-feature ="assign-to-translator"
+                    ng-class="{'is-assign':item.is_assign}"
+                    ng-click="showAssignDialog(item)"
+                    ng-disabled="item.is_locked || item.task_status == 'Finished' || item.task_status == 'To be check' "
+                    has-feature="assign"
+                    >Assign Task
+                        <i></i>
+                    </button>
+                    <!-- 删除task -->
+                    <button
+                            class="btn btn-default"
+                            has-feature="delete-task"
+                            ng-click="deleteTask(item,$index)">
+                        Delete
+                    </button>
+                    <!-- lock -->
+                    <button
+                    class="btn btn-default btn-switch open"
+                    has-feature ="admin-lock-unlock"
+                    ng-if="!item.is_locked"
+                    ng-click="showLockDialog(item)" >
+                        <span>
+                            Open
+                        </span>
+                    </button>
+                    <button
+                    class="btn btn-default btn-switch lock"
+                    has-feature ="admin-lock-unlock"
+                    ng-if="item.is_locked"
+                    ng-click="showLockDialog(item)" >
+                        <span>
+                            Lock
+                        </span>
+                    </button>
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
